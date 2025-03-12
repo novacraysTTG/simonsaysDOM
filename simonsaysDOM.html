@@ -1,0 +1,98 @@
+<html>
+    <head>
+        <title>Simon Says</title>
+        <style>
+            body {
+                font-family: helvetica;
+            }
+            .button_container {
+                flex-direction: row;
+            }
+            .button {width: 100px; height: 100px;}
+            .red {background-color: red;}
+            .blue {background-color: blue;}
+            .green {background-color: green;}
+            .yellow {background-color: yellow;}
+            .flash {opacity: 0.25;}
+            #start {margin-top: 15px}
+        </style>
+    </head>
+    <body>
+        <h1>Simon Says:</h1>
+        <div class="button_container">
+            <button class="button red" data-color="red">Red</button>
+            <button class="button blue" data-color="blue">Blue</button>
+            <button class="button green" data-color="green">Green</button>
+            <button class="button yellow" data-color="yellow">Yellow</button>
+        </div>
+        <button id="start">Start Game</button>
+        <p id="status">Press 'Start Game' to start!</p>
+
+        <script>
+            const colors = ['red', 'blue', 'green', 'yellow'];
+            let sequence = [];
+            let guess = [];
+            let level = 0;
+
+            document.getElementById("start").addEventListener("click", startGame);
+            document.querySelectorAll(".button").forEach(button => button.addEventListener("click", guessClick));
+
+            function startGame(){
+                sequence = [];
+                guess = [];
+                level = 0;
+                document.getElementById("status").innerText = "Memorize this sequence!"
+                nextRound()
+            }
+
+            function nextRound(){
+                guess = [];
+                level++;
+                sequence.push(colors[Math.floor(Math.random() * 4)])
+                showSequence()
+            }
+
+            function showSequence(){
+                let i = 0;
+
+                flashNext();
+
+                function flashNext(){
+                    if(i < sequence.length){
+                        flashButton(sequence[i]);
+                        setTimeout(() => {
+                            i++;
+                            flashNext()
+                        }, 600)
+                    } else {
+                        setTimeout(() => {
+                            document.getElementById("status").innerText = "Replay the Sequence!"
+                        }, 400)
+                    }
+                }
+            }
+
+            function flashButton(color){
+                const button = document.querySelector(`.${color}`);
+                button.classList.add("flash");
+                setTimeout(() => button.classList.remove("flash"), 400);
+            }
+
+            function guessClick(event){
+                const color = event.target.dataset.color;
+                guess.push(color);
+                flashButton(color);
+
+                const index = guess.length - 1;
+                if(guess[index] !== sequence[index]){
+                    document.getElementById("status").innerText = "Game Over. Try again?";
+                    return;
+                }
+                if(guess.length === sequence.length){
+                    document.getElementById("status").innerText = "Correct! Beginning next round...";
+                    setTimeout(nextRound, 1000);
+                }
+            }
+        </script>
+    </body>
+</html>
